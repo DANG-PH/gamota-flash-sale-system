@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package ticket;
+
+service TicketService {
+  // Đặt vé
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  
+  // Kiểm tra trạng thái đơn hàng
+  rpc GetOrderStatus(GetOrderStatusRequest) returns (GetOrderStatusResponse);
+
+  // Lấy số lượng vé còn lại
+  rpc GetStock(GetStockRequest) returns (GetStockResponse);
+}
+
+// Request đặt vé
+message CreateOrderRequest {
+  int32 user_id = 1;
+  int32 event_id = 2;
+  int32 quantity = 3; // số lượng vé muốn mua
+}
+
+// Response đặt vé
+message CreateOrderResponse {
+  bool success = 1;
+  string message = 2;
+  int32 order_id = 3; // chỉ khi success = true
+}
+
+// Request kiểm tra trạng thái đơn hàng
+message GetOrderStatusRequest {
+  int32 order_id = 1;
+}
+
+// Response trạng thái đơn hàng
+message GetOrderStatusResponse {
+  int32 order_id = 1;
+  bool success = 2;
+  string status = 3; // PENDING, SUCCESS, FAILED
+}
+
+// Request kiểm tra stock
+message GetStockRequest {
+  int32 event_id = 1;
+}
+
+// Response stock
+message GetStockResponse {
+  int32 event_id = 1;
+  int32 remaining_stock = 2; // Số lượng vé còn lại hiện tại
+}

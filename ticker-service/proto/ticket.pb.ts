@@ -52,9 +52,41 @@ export interface GetStockResponse {
   remaining_stock: number;
 }
 
+export interface UpdateStockResponse {
+  success: boolean;
+}
+
+export interface InsertOrderResponse {
+  success: boolean;
+}
+
+export interface UpdateStockRequest {
+  event_id: number;
+  quantity: number;
+}
+
+export interface InsertOrderRequest {
+  user_id: number;
+  event_id: number;
+  quantity: number;
+}
+
+export interface CreateEventRequest {
+  name: string;
+  stock: number;
+}
+
+export interface CreateEventResponse {
+  success: boolean;
+}
+
 export const TICKET_PACKAGE_NAME = "ticket";
 
 export interface TicketServiceClient {
+  /** Admin tạo event */
+
+  createEvent(request: CreateEventRequest, metadata?: Metadata): Observable<CreateEventResponse>;
+
   /** Đặt vé */
 
   createOrder(request: CreateOrderRequest, metadata?: Metadata): Observable<CreateOrderResponse>;
@@ -66,9 +98,21 @@ export interface TicketServiceClient {
   /** Lấy số lượng vé còn lại */
 
   getStock(request: GetStockRequest, metadata?: Metadata): Observable<GetStockResponse>;
+
+  /** Update vé trong db ( queue dùng ) */
+
+  updateStock(request: UpdateStockRequest, metadata?: Metadata): Observable<UpdateStockResponse>;
+
+  /** Tạo bản ghi order trong DB ( queue dùng ) */
+
+  insertOrder(request: InsertOrderRequest, metadata?: Metadata): Observable<InsertOrderResponse>;
 }
 
 export interface TicketServiceController {
+  /** Admin tạo event */
+
+  createEvent(request: CreateEventRequest, metadata?: Metadata): Observable<CreateEventResponse>;
+
   /** Đặt vé */
 
   createOrder(request: CreateOrderRequest, metadata?: Metadata): Observable<CreateOrderResponse>;
@@ -80,11 +124,26 @@ export interface TicketServiceController {
   /** Lấy số lượng vé còn lại */
 
   getStock(request: GetStockRequest, metadata?: Metadata): Observable<GetStockResponse>;
+
+  /** Update vé trong db ( queue dùng ) */
+
+  updateStock(request: UpdateStockRequest, metadata?: Metadata): Observable<UpdateStockResponse>;
+
+  /** Tạo bản ghi order trong DB ( queue dùng ) */
+
+  insertOrder(request: InsertOrderRequest, metadata?: Metadata): Observable<InsertOrderResponse>;
 }
 
 export function TicketServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createOrder", "getOrderStatus", "getStock"];
+    const grpcMethods: string[] = [
+      "createEvent",
+      "createOrder",
+      "getOrderStatus",
+      "getStock",
+      "updateStock",
+      "insertOrder",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("TicketService", method)(constructor.prototype[method], method, descriptor);

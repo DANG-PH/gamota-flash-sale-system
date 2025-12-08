@@ -7,7 +7,8 @@ import { OptimisticLockVersionMismatchError } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from '@nestjs/cache-manager';
 import { RedisStockService } from 'src/redis/redis-stock.service';
-import type { CreateOrderRequest, CreateOrderResponse, GetOrderStatusRequest, GetOrderStatusResponse } from '../../proto/ticket.pb';
+import type { CreateOrderRequest, CreateOrderResponse, GetOrderStatusRequest, GetOrderStatusResponse, InsertOrderRequest, InsertOrderResponse } from '../../proto/ticket.pb';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class OrderService {
@@ -18,7 +19,8 @@ export class OrderService {
     private readonly orderRepo: Repository<Order>,
     private readonly dataSource: DataSource,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly redisStockService: RedisStockService
+    private readonly redisStockService: RedisStockService,
+    @Inject(String(process.env.RABBIT_SERVICE)) private readonly queueClient: ClientProxy,
   ) {}
 
   // Create Order (Pessimistic Lock)
@@ -136,35 +138,20 @@ export class OrderService {
 
     // 2. Redis OK → tạo order trong DB
     try {
-      const event = await this.eventRepo.findOne({ where: { id: event_id } });
-      if (!event) {
-        return { success: false, message: 'Event not found', order_id: 0 };
-      }
-
-      const order = this.orderRepo.create({
-        user_id: user_id,
-        event: event,
+      this.queueClient.emit('sync-stock', {
+        event_id: event_id,
         quantity: quantity,
-        status: OrderStatus.SUCCESS,
-      });
-
-      const savedOrder = await this.orderRepo.save(order);
-
-      const stock = await this.cacheManager.get<number>(`event:${event_id}:stock`);
-      if (stock !== undefined) {
-        event.remaining_stock = stock;
-      }
-
-      await this.eventRepo.save(event); 
+        user_id: user_id
+      }); 
 
       return {
         success: true,
         message: 'Order created',
-        order_id: savedOrder.id,
+        order_id: 0,
       };
 
     } catch (err) {
-      // 3. DB lỗi -> rollback stock Redis
+      // 3. lỗi -> rollback stock Redis
       await this.redisStockService.increaseStock(event_id, quantity);
 
       throw err;
@@ -177,5 +164,25 @@ export class OrderService {
       return { order_id: request.order_id, success: false, status: 'NOT_FOUND' };
     }
     return { order_id: order.id, success: order.status === OrderStatus.SUCCESS, status: order.status };
+  }
+
+  async insertOrder(request: InsertOrderRequest): Promise<InsertOrderResponse> {
+    const event = await this.eventRepo.findOne({ where: { id: request.event_id } });
+    if (!event) {
+      return { success: false };
+    }
+
+    const order = this.orderRepo.create({
+      user_id: request.user_id,
+      event: event,
+      quantity: request.quantity,
+      status: OrderStatus.SUCCESS,
+    });
+
+    const savedOrder = await this.orderRepo.save(order);
+
+    return {
+      success: true
+    }
   }
 }

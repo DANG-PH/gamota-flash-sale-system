@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { OrderService } from './order.service';
-import type { CreateOrderRequest, CreateOrderResponse, GetOrderStatusRequest, GetOrderStatusResponse, GetStockRequest, GetStockResponse } from '../../proto/ticket.pb';
+import type { CreateOrderRequest, CreateOrderResponse, GetOrderStatusRequest, GetOrderStatusResponse, GetStockRequest, GetStockResponse, InsertOrderRequest, InsertOrderResponse } from '../../proto/ticket.pb';
 import { TICKET_SERVICE_NAME } from '../../proto/ticket.pb';
 
 @Controller()
@@ -16,5 +16,10 @@ export class OrderController {
   @GrpcMethod(TICKET_SERVICE_NAME, 'GetOrderStatus')
   async getOrderStatus(data: GetOrderStatusRequest): Promise<GetOrderStatusResponse> {
     return this.orderService.getOrderStatus(data);
+  }
+
+  @GrpcMethod(TICKET_SERVICE_NAME, 'InsertOrder')
+  async insertOrder(data: InsertOrderRequest): Promise<InsertOrderResponse> {
+    return this.orderService.insertOrder(data);
   }
 }

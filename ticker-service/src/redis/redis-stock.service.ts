@@ -7,7 +7,7 @@ export class RedisStockService {
   private luaSha: string;
 
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379');
+    this.redis = new Redis(process.env.REDIS_URL || '');
     this.loadLuaScript();
   }
 
@@ -48,7 +48,6 @@ export class RedisStockService {
   }
 
   async decreaseStock(eventId: number, qty: number): Promise<number> {
-    // FIX: cast result về number
     const result = await this.redis.evalsha(
       this.luaSha,
       1,

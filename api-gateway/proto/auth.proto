@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package auth;
+
+// ===== SERVICE DEFINITION =====
+service AuthService {
+  // user actions
+  rpc Register (RegisterRequest) returns (RegisterResponse) {};
+  rpc Login (LoginRequest) returns (LoginResponse) {};
+  rpc VerifyOTP (VerifyOtpRequest) returns (VerifyOtpResponse) {};
+  rpc Refresh(RefreshRequest) returns (RefreshResponse);
+
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse) {};
+  rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse) {};
+  rpc RequestResetPassword (RequestResetPasswordRequest) returns (RequestResetPasswordResponse) {};
+  rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse) {};
+  rpc GetProfile (GetProfileRequest) returns (GetProfileReponse) {};
+}
+
+// ===== MESSAGES =====
+
+// --- Register/Login/OTP/Refresh  ---
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+  string realname = 4;
+}
+
+message RegisterResponse {
+  bool success = 1;
+  int32 auth_id = 2;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string sessionId = 1;
+}
+
+message VerifyOtpRequest {
+  string sessionId = 1;
+  string otp = 2;
+}
+
+message VerifyOtpResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 auth_id = 3;
+  string role = 4;
+}
+
+message RefreshRequest {
+  string refreshToken = 1;
+}
+
+message RefreshResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+// --- User methods ---
+message ChangePasswordRequest {
+  string sessionId = 1;
+  string oldPassword = 2;
+  string newPassword = 3;
+}
+
+message ChangePasswordResponse {
+  bool success = 1;
+}
+
+message ResetPasswordRequest {
+  string username = 1;
+  string otp = 2;
+  string newPassword = 3;
+}
+
+message ResetPasswordResponse {
+  bool success = 1;
+}
+
+message ChangeEmailRequest {
+  string sessionId = 1;
+  string newEmail = 2;
+}
+
+message ChangeEmailResponse {
+  bool success = 1;
+}
+
+// --- Request OTP reset password ---
+message RequestResetPasswordRequest {
+  string username = 1;
+}
+
+message RequestResetPasswordResponse {
+  bool success = 1;
+}
+
+message GetProfileRequest {
+  int32 id = 1;
+}
+
+message GetProfileReponse {
+  string role = 1;
+}

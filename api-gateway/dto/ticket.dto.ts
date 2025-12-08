@@ -1,13 +1,9 @@
 // ticket.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Min } from 'class-validator';
+import { IsInt, IsString, isString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateOrderDto {
-  @ApiProperty({ description: 'ID người dùng', example: 123 })
-  @IsInt()
-  user_id: number;
-
   @ApiProperty({ description: 'ID sự kiện', example: 1 })
   @IsInt()
   event_id: number;
@@ -60,4 +56,19 @@ export class GetStockResponseDto {
 
   @ApiProperty({ description: 'Số lượng vé còn lại', example: 42 })
   remaining_stock: number;
+}
+
+export class CreateEventRequestDto {
+  @ApiProperty({ description: 'Tên sự kiện', example: 'Concert A' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ description: 'Số lượng vé', example: 1000 })
+  @IsInt()
+  stock: number;
+}
+
+export class CreateEventResponseDto {
+  @ApiProperty({ description: 'Tạo event thành công hay không', example: true })
+  success: boolean;
 }

@@ -2,7 +2,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: postgres-gamota
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: haidang
@@ -12,7 +12,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: pgadmin-gamota
     environment:
       PGADMIN_DEFAULT_EMAIL: dangph@appota.vn
       PGADMIN_DEFAULT_PASSWORD: haidang
@@ -23,14 +23,43 @@ services:
   
   redis:
     image: redis
-    container_name: redis
+    container_name: redis-gamota
     ports:
       - "6379:6379"
 
   redisinsight:
     image: redis/redisinsight:latest
-    container_name: redisinsight
+    container_name: redisinsight-gamota
     ports:
       - "5540:5540"
     depends_on:
       - redis
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq-gamota
+    ports:
+      - "5674:5672"
+      - "15674:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: dang123
+      RABBITMQ_DEFAULT_PASS: "haidang"
+
+  mysql:
+      image: mysql:8.0
+      container_name: mysql-gamota
+      ports:
+        - "3306:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: "Phamhaidang112@"
+      volumes:
+        - ./configAdmin.sql:/docker-entrypoint-initdb.d/configAdmin.sql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-gamota
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+    depends_on:
+      - mysql

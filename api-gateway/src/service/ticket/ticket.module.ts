@@ -4,6 +4,8 @@ import { join } from 'path';
 import { TICKET_PACKAGE_NAME } from 'proto/ticket.pb';
 import { TicketService } from './ticket.service';
 import { TicketController } from './ticket.controller';
+import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
+import { RolesGuard } from 'src/security/guard/role.guard';
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ import { TicketController } from './ticket.controller';
     ]),
   ],
   controllers: [TicketController],
-  providers: [TicketService],
+  providers: [TicketService,JwtStrategy,RolesGuard],
   exports: [TicketService]
 })
 export class TicketModule {}

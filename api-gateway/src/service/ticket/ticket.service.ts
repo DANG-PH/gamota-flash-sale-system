@@ -1,6 +1,8 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import type {
+  CreateEventRequest,
+  CreateEventResponse,
   CreateOrderRequest,
   CreateOrderResponse,
   GetOrderStatusRequest,
@@ -33,5 +35,9 @@ export class TicketService {
 
   async handleGetStock(req: GetStockRequest): Promise<GetStockResponse> {
     return grpcCall(this.ticketGrpcService.getStock(req));
+  }
+
+  async handleCreateEvent( req: CreateEventRequest): Promise<CreateEventResponse> {
+    return grpcCall(this.ticketGrpcService.createEvent(req));
   }
 }

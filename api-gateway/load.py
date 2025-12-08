@@ -3,8 +3,8 @@ from locust import HttpUser, task, constant
 class MyUser(HttpUser):
     # Không chờ giữa các request
     wait_time = constant(0)
-    # Đặt host trực tiếp (ví dụ server đang chạy)
-    host = "https://chrysocarpous-adonis-multilobular.ngrok-free.dev"  # đổi thành địa chỉ API của bạn
+    # Đặt host 
+    host = "https://chrysocarpous-adonis-multilobular.ngrok-free.dev"  
 
     @task
     def post_order(self):

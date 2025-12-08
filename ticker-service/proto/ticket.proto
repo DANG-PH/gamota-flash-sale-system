@@ -3,6 +3,9 @@ syntax = "proto3";
 package ticket;
 
 service TicketService {
+  // Admin tạo event
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+
   // Đặt vé
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
   
@@ -11,6 +14,12 @@ service TicketService {
 
   // Lấy số lượng vé còn lại
   rpc GetStock(GetStockRequest) returns (GetStockResponse);
+
+  // Update vé trong db ( queue dùng )
+  rpc UpdateStock(UpdateStockRequest) returns (UpdateStockResponse);
+
+  // Tạo bản ghi order trong DB ( queue dùng )
+  rpc InsertOrder(InsertOrderRequest) returns (InsertOrderResponse);
 }
 
 // Request đặt vé
@@ -48,4 +57,32 @@ message GetStockRequest {
 message GetStockResponse {
   int32 event_id = 1;
   int32 remaining_stock = 2; // Số lượng vé còn lại hiện tại
+}
+
+message UpdateStockResponse {
+  bool success = 1;
+}
+
+message InsertOrderResponse {
+  bool success = 1;
+}
+
+message UpdateStockRequest {
+  int32 event_id = 1;
+  int32 quantity = 2;
+}
+
+message InsertOrderRequest {
+  int32 user_id = 1;
+  int32 event_id = 2;
+  int32 quantity = 3;
+}
+
+message CreateEventRequest {
+  string name = 1;
+  int32 stock = 2;
+}
+
+message CreateEventResponse {
+  bool success = 1;
 }
